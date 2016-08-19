@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
 
     private static final String SAMPLE_FILE = "sample.pdf";
     private static final String TAG = MainActivity.class.getSimpleName();
-    private String pdfFileName;
     private int pageNumber = 0;
     private PDFView pdfView;
 
@@ -27,12 +26,10 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
         setContentView(R.layout.activity_main);
 
         this.pdfView = (PDFView) findViewById(R.id.pdfView);
-        displayFromAsset(SAMPLE_FILE);
+        displayFromAsset();
     }
 
-    private void displayFromAsset(String assetFileName) {
-        pdfFileName = assetFileName;
-
+    private void displayFromAsset() {
         pdfView.fromAsset(SAMPLE_FILE)
                 .defaultPage(pageNumber)
                 .onPageChange(this)

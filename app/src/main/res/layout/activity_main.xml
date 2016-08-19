@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+
     <coneptum.com.android_pdf_viewer.PDFView
         android:id="@+id/pdfView"
         android:layout_marginBottom="@dimen/button_bar_height"
@@ -28,5 +30,16 @@
             android:layout_width="50dp"
             android:layout_height="50dp" />
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_marginLeft="100dp"
+        android:layout_marginBottom="100dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorAccent"
+        android:id="@+id/firma"
+        android:layout_width="300dp"
+        android:layout_height="100dp">
+    </RelativeLayout>
 
 </RelativeLayout>

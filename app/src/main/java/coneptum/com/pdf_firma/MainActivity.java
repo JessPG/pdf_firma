@@ -3,6 +3,7 @@ package coneptum.com.pdf_firma;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.RelativeLayout;
 
 import com.shockwave.pdfium.PdfDocument;
 
@@ -24,6 +25,10 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        RelativeLayout firma = (RelativeLayout) findViewById(R.id.firma);
+        MyCanvas canvas = new MyCanvas(this);
+        firma.addView(canvas);
 
         this.pdfView = (PDFView) findViewById(R.id.pdfView);
         displayFromAsset();

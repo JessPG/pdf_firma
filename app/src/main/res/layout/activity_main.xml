@@ -32,14 +32,14 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:layout_marginLeft="100dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginLeft="@dimen/firma_margin_h"
+        android:layout_marginBottom="@dimen/firma_margin_v"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:background="@color/colorAccent"
+        android:background="@null"
         android:id="@+id/firma"
-        android:layout_width="300dp"
-        android:layout_height="100dp">
+        android:layout_width="@dimen/firma_width"
+        android:layout_height="@dimen/firma_height">
     </RelativeLayout>
 
 </RelativeLayout>

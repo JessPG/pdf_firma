@@ -1,12 +1,19 @@
 package coneptum.com.pdf_firma;
 
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.shockwave.pdfium.PdfDocument;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import coneptum.com.android_pdf_viewer.PDFView;
@@ -15,33 +22,68 @@ import coneptum.com.android_pdf_viewer.listener.OnPageChangeListener;
 
 public class MainActivity extends AppCompatActivity implements OnPageChangeListener, OnLoadCompleteListener {
 
-    private static final String SAMPLE_FILE = "sample.pdf";
     private static final String TAG = MainActivity.class.getSimpleName();
-    private int pageNumber = 0;
+    private static final String SAMPLE_FILE = "sample.pdf";
+    private static final String DOWNLOADS_FOLDER = "/mnt/sdcard/download/";
+    private static final int LAST_PAGE = 1000;
+
+    private String sampleBase64;
+
     private PDFView pdfView;
+    private RelativeLayout firma;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.pdfView = (PDFView) findViewById(R.id.pdfView);
 
-        RelativeLayout firma = (RelativeLayout) findViewById(R.id.firma);
+        firma = (RelativeLayout) findViewById(R.id.firma);
         MyCanvas canvas = new MyCanvas(this);
+        firma.setVisibility(View.INVISIBLE);
         firma.addView(canvas);
 
-        this.pdfView = (PDFView) findViewById(R.id.pdfView);
-        displayFromAsset();
+        // TODO obtenir base 64 real
+        sampleBase64 = getString(R.string.demo);
+        getPdfFromBase64(sampleBase64);
     }
 
-    private void displayFromAsset() {
-        pdfView.fromAsset(SAMPLE_FILE)
-                .defaultPage(pageNumber)
+    /**
+     * Carga el pdf
+     * @param uri
+     */
+    private void displayPdf(Uri uri) {
+        pdfView.fromUri(uri)
+                .defaultPage(LAST_PAGE)
                 .onPageChange(this)
                 .enableAnnotationRendering(true)
                 .onLoad(this)
-                //.scrollHandle(new DefaultScrollHandle(this))
                 .load();
+        //pdfView.useBestQuality(true);
+
+    }
+
+    /**
+     * Genera el archivo pdf desde un base64
+     * @param base64
+     */
+    private void getPdfFromBase64 (String base64) {
+        final File file = new File(DOWNLOADS_FOLDER + SAMPLE_FILE);
+        byte[] pdfAsBytes = Base64.decode(base64, 0);
+        FileOutputStream os;
+        try {
+            os = new FileOutputStream(file, false);
+            os.write(pdfAsBytes);
+            os.flush();
+            os.close();
+            Uri uri = Uri.fromFile(file);
+            displayPdf(uri);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -73,6 +115,10 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
 
     @Override
     public void onPageChanged(int page, int pageCount) {
-        pageNumber = page;
+        if (page < pageCount-1) {
+            firma.setVisibility(View.INVISIBLE);
+        } else {
+            firma.setVisibility(View.VISIBLE);
+        }
     }
 }

@@ -12,16 +12,13 @@ import android.view.View;
 public class MyCanvas extends View {
 
     private Paint mPaint;
-
-    public int width;
-    public  int height;
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Path    mPath;
     private Paint   mBitmapPaint;
     Context context;
-    private Paint circlePaint;
-    private Path circlePath;
+//    private Paint circlePaint;
+//    private Path circlePath;
 
     public MyCanvas(Context c) {
         super(c);
@@ -30,7 +27,7 @@ public class MyCanvas extends View {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        mPaint.setColor(Color.GREEN);
+        mPaint.setColor(Color.BLACK);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -39,15 +36,16 @@ public class MyCanvas extends View {
         context=c;
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-        circlePaint = new Paint();
+
 
         // circulo que ejerce de cursor
-        circlePath = new Path();
-        circlePaint.setAntiAlias(true);
-        circlePaint.setColor(Color.BLUE);
-        circlePaint.setStyle(Paint.Style.STROKE);
-        circlePaint.setStrokeJoin(Paint.Join.MITER);
-        circlePaint.setStrokeWidth(4f);
+//        circlePaint = new Paint();
+//        circlePath = new Path();
+//        circlePaint.setAntiAlias(true);
+//        circlePaint.setColor(Color.BLUE);
+//        circlePaint.setStyle(Paint.Style.STROKE);
+//        circlePaint.setStrokeJoin(Paint.Join.MITER);
+//        circlePaint.setStrokeWidth(4f);
     }
 
     @Override
@@ -64,7 +62,7 @@ public class MyCanvas extends View {
 
         canvas.drawBitmap( mBitmap, 0, 0, mBitmapPaint);
         canvas.drawPath( mPath,  mPaint);
-        canvas.drawPath( circlePath,  circlePaint);
+//        canvas.drawPath( circlePath,  circlePaint);
     }
 
     private float mX, mY;
@@ -85,14 +83,14 @@ public class MyCanvas extends View {
             mX = x;
             mY = y;
 
-            circlePath.reset();
-            circlePath.addCircle(mX, mY, 30, Path.Direction.CW);
+//            circlePath.reset();
+//            circlePath.addCircle(mX, mY, 30, Path.Direction.CW);
         }
     }
 
     private void touch_up() {
         mPath.lineTo(mX, mY);
-        circlePath.reset();
+//        circlePath.reset();
         // commit the path to our offscreen
         mCanvas.drawPath(mPath,  mPaint);
         // kill this so we don't double draw

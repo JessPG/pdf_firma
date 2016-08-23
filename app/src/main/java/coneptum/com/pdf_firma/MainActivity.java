@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements OnLoadCompleteLis
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String SAMPLE_FILE = "sample.pdf";
     private static final String DOWNLOADS_FOLDER = "/mnt/sdcard/download/";
-    private static final int LAST_PAGE = 0;
+    private static final int LAST_PAGE = 1000;
 
     private String sampleBase64;
 

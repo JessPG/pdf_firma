@@ -22,6 +22,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.Region;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -46,6 +47,8 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
     private static final int SIGNATURE_HOR_MARGIN = 20;
     private static final int SIGNATURE_VER_MARGIN = 20;
     private static final float TOUCH_TOLERANCE = 4;
+
+    private int pageH;
 
     private PDFView pdfView;
     private AnimationManager animationManager;
@@ -92,6 +95,7 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
 
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+
 
         pdfView.setOnTouchListener(this);
     }
@@ -232,6 +236,16 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         hideHandle();
     }
 
+    private boolean isInsideSignature(int x, int y) {
+        if (x>=SIGNATURE_HOR_MARGIN &&
+                x<=SIGNATURE_HOR_MARGIN+SIGNATURE_WIDTH &&
+                y<=pageH-SIGNATURE_VER_MARGIN &&
+                y>=pageH-SIGNATURE_VER_MARGIN-SIGNATURE_HEIGHT) {
+            return true;
+        }
+        return false;
+    }
+
 
     private void touch_start(float x, float y) {
         mPath.reset();
@@ -241,12 +255,20 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
     }
 
     private void touch_move(float x, float y) {
-        float dx = Math.abs(x - mX);
-        float dy = Math.abs(y - mY);
-        if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-            mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+        if (isInsideSignature((int)x, (int)y)) {
+            float dx = Math.abs(x - mX);
+            float dy = Math.abs(y - mY);
+            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+                mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
+                mX = x;
+                mY = y;
+            }
+        } else {
             mX = x;
             mY = y;
+            mCanvas.drawPath(mPath,  mPaint);
+            mPath.reset();
+            mPath.moveTo(x, y);
         }
     }
 
@@ -311,9 +333,11 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
 
     @Override
     public void onSize(int pageWidth, int pageHeight) {
+        this.pageH = pageHeight;
         mBitmap = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
         hidden = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+
         mCanvas.translate(-SIGNATURE_HOR_MARGIN, -pageHeight+SIGNATURE_HEIGHT+SIGNATURE_VER_MARGIN);
         mCanvas.drawRGB(120,120,120);
     }

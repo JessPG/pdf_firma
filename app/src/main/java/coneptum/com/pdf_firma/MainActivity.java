@@ -1,12 +1,21 @@
 package coneptum.com.pdf_firma;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
+import android.widget.ToggleButton;
 
 import com.shockwave.pdfium.PdfDocument;
 
@@ -20,18 +29,16 @@ import coneptum.com.android_pdf_viewer.PDFView;
 import coneptum.com.android_pdf_viewer.listener.OnLoadCompleteListener;
 import coneptum.com.android_pdf_viewer.listener.OnPageChangeListener;
 
-public class MainActivity extends AppCompatActivity implements OnPageChangeListener, OnLoadCompleteListener {
+public class MainActivity extends AppCompatActivity implements OnLoadCompleteListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String SAMPLE_FILE = "sample.pdf";
     private static final String DOWNLOADS_FOLDER = "/mnt/sdcard/download/";
-    private static final int LAST_PAGE = 1000;
+    private static final int LAST_PAGE = 0;
 
     private String sampleBase64;
 
     private PDFView pdfView;
-    private RelativeLayout firma;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +46,13 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
         setContentView(R.layout.activity_main);
         this.pdfView = (PDFView) findViewById(R.id.pdfView);
 
-        firma = (RelativeLayout) findViewById(R.id.firma);
-        MyCanvas canvas = new MyCanvas(this);
-        firma.setVisibility(View.INVISIBLE);
-        firma.addView(canvas);
+        ToggleButton button = (ToggleButton) findViewById(R.id.b1);
+        button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                pdfView.setScrollLock(isChecked);
+            }
+        });
 
         // TODO obtenir base 64 real
         sampleBase64 = getString(R.string.demo);
@@ -56,10 +66,12 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
     private void displayPdf(Uri uri) {
         pdfView.fromUri(uri)
                 .defaultPage(LAST_PAGE)
-                .onPageChange(this)
+                //.onPageChange(this)
                 .enableAnnotationRendering(true)
+                //.onDraw(this)
                 .onLoad(this)
                 .load();
+
         //pdfView.useBestQuality(true);
 
     }
@@ -110,15 +122,6 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
             if (b.hasChildren()) {
                 printBookmarksTree(b.getChildren(), sep + "-");
             }
-        }
-    }
-
-    @Override
-    public void onPageChanged(int page, int pageCount) {
-        if (page < pageCount-1) {
-            firma.setVisibility(View.INVISIBLE);
-        } else {
-            firma.setVisibility(View.VISIBLE);
         }
     }
 }

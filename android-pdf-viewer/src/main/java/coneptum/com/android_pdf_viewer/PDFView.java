@@ -80,6 +80,17 @@ public class PDFView extends View {
     private float midZoom = DEFAULT_MID_SCALE;
     private float maxZoom = DEFAULT_MAX_SCALE;
 
+    private boolean scrollLock = false;
+
+
+    public boolean isScrollLock() {
+        return scrollLock;
+    }
+
+    public void setScrollLock(boolean scrollLock) {
+        this.scrollLock = scrollLock;
+    }
+
     /**
      * START - scrolling in first page direction
      * END - scrolling in last page direction
@@ -427,7 +438,7 @@ public class PDFView extends View {
         return this.onPageScrollListener;
     }
 
-    private void setOnDrawListener(OnDrawListener onDrawListener) {
+    public void setOnDrawListener(OnDrawListener onDrawListener) {
         this.onDrawListener = onDrawListener;
     }
 
@@ -487,6 +498,10 @@ public class PDFView extends View {
             moveTo(currentXOffset, calculateCenterOffsetForPage(currentFilteredPage));
         else
             moveTo(calculateCenterOffsetForPage(currentFilteredPage), currentYOffset);
+
+        if (onDrawListener!=null) {
+            onDrawListener.onSize(w, h);
+        }
     }
 
     @Override
@@ -524,7 +539,7 @@ public class PDFView extends View {
         // abstraction of the screen position when rendering the parts.
 
         // Draws background
-        canvas.drawColor(Color.WHITE);
+        canvas.drawColor(Color.BLACK);
 
         if (recycled) {
             return;
@@ -551,14 +566,16 @@ public class PDFView extends View {
 
         // Draws the user layer
         if (onDrawListener != null) {
-            canvas.translate(toCurrentScale(currentFilteredPage * optimalPageWidth), 0);
+            // movemos el canvas a la pagina actual (verticalmente)
+            canvas.translate(0, toCurrentScale(currentFilteredPage * optimalPageHeight));
 
             onDrawListener.onLayerDrawn(canvas, //
                     toCurrentScale(optimalPageWidth), //
                     toCurrentScale(optimalPageHeight),
                     currentPage);
 
-            canvas.translate(-toCurrentScale(currentFilteredPage * optimalPageWidth), 0);
+            // retornamos el canvas a su posicion original
+            canvas.translate(0, -toCurrentScale(currentFilteredPage * optimalPageHeight));
         }
 
         // Restores the canvas position
@@ -1235,8 +1252,8 @@ public class PDFView extends View {
 
         public void load() {
             PDFView.this.recycle();
-            PDFView.this.setOnDrawListener(onDrawListener);
-            PDFView.this.setOnPageChangeListener(onPageChangeListener);
+            PDFView.this.setOnDrawListener(dragPinchManager);
+            PDFView.this.setOnPageChangeListener(dragPinchManager);
             PDFView.this.setOnPageScrollListener(onPageScrollListener);
             PDFView.this.enableSwipe(enableSwipe);
             PDFView.this.enableDoubletap(enableDoubletap);

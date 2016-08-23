@@ -15,12 +15,20 @@
  */
 package coneptum.com.android_pdf_viewer;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import coneptum.com.android_pdf_viewer.listener.OnDrawListener;
+import coneptum.com.android_pdf_viewer.listener.OnPageChangeListener;
 import coneptum.com.android_pdf_viewer.scroll.ScrollHandle;
 
 import static coneptum.com.android_pdf_viewer.util.Constants.Pinch.MAXIMUM_ZOOM;
@@ -30,7 +38,14 @@ import static coneptum.com.android_pdf_viewer.util.Constants.Pinch.MINIMUM_ZOOM;
  * This Manager takes care of moving the PDFView,
  * set its zoom track user actions.
  */
-class DragPinchManager implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, ScaleGestureDetector.OnScaleGestureListener, View.OnTouchListener {
+class DragPinchManager implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, ScaleGestureDetector.OnScaleGestureListener, View.OnTouchListener, OnDrawListener, OnPageChangeListener {
+
+    // constants
+    private static final int SIGNATURE_WIDTH = 300;
+    private static final int SIGNATURE_HEIGHT = 200;
+    private static final int SIGNATURE_HOR_MARGIN = 20;
+    private static final int SIGNATURE_VER_MARGIN = 20;
+    private static final float TOUCH_TOLERANCE = 4;
 
     private PDFView pdfView;
     private AnimationManager animationManager;
@@ -42,7 +57,17 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
 
     private boolean swipeVertical;
 
-    private boolean scrolling = false;
+    private boolean scrolling;
+    private boolean isLastPage;
+
+    private Paint mPaint;
+    private Bitmap mBitmap;
+    private Bitmap hidden;
+    private Canvas mCanvas;
+    private Path mPath;
+    private Paint   mBitmapPaint;
+    private float mX, mY;
+
 
     public DragPinchManager(PDFView pdfView, AnimationManager animationManager) {
         this.pdfView = pdfView;
@@ -51,6 +76,23 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         this.swipeVertical = pdfView.isSwipeVertical();
         gestureDetector = new GestureDetector(pdfView.getContext(), this);
         scaleGestureDetector = new ScaleGestureDetector(pdfView.getContext(), this);
+
+        scrolling = false;
+        isLastPage = false;
+
+        // trazado
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setDither(true);
+        mPaint.setColor(Color.BLACK);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setStrokeWidth(2);
+
+        mPath = new Path();
+        mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+
         pdfView.setOnTouchListener(this);
     }
 
@@ -126,13 +168,17 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        scrolling = true;
-        if (isZooming() || isSwipeEnabled) {
-            pdfView.moveRelativeTo(-distanceX, -distanceY);
-        }
-        pdfView.loadPageByOffset();
+        if (!pdfView.isScrollLock()) {
+            scrolling = true;
+            if (isZooming() || isSwipeEnabled) {
+                pdfView.moveRelativeTo(-distanceX, -distanceY);
+            }
+            pdfView.loadPageByOffset();
 
-        return true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void onScrollEnd(MotionEvent event) {
@@ -147,15 +193,19 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        int xOffset = (int) pdfView.getCurrentXOffset();
-        int yOffset = (int) pdfView.getCurrentYOffset();
-        animationManager.startFlingAnimation(xOffset,
-                yOffset, (int) (velocityX),
-                (int) (velocityY),
-                xOffset * (swipeVertical ? 2 : pdfView.getPageCount()), 0,
-                yOffset * (swipeVertical ? pdfView.getPageCount() : 2), 0);
+        if (!pdfView.isScrollLock()) {
+            int xOffset = (int) pdfView.getCurrentXOffset();
+            int yOffset = (int) pdfView.getCurrentYOffset();
+            animationManager.startFlingAnimation(xOffset,
+                    yOffset, (int) (velocityX),
+                    (int) (velocityY),
+                    xOffset * (swipeVertical ? 2 : pdfView.getPageCount()), 0,
+                    yOffset * (swipeVertical ? pdfView.getPageCount() : 2), 0);
 
-        return true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -182,15 +232,62 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         hideHandle();
     }
 
+
+    private void touch_start(float x, float y) {
+        mPath.reset();
+        mPath.moveTo(x, y);
+        mX = x;
+        mY = y;
+    }
+
+    private void touch_move(float x, float y) {
+        float dx = Math.abs(x - mX);
+        float dy = Math.abs(y - mY);
+        if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+            mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+            mX = x;
+            mY = y;
+        }
+    }
+
+    private void touch_up() {
+        mPath.lineTo(mX, mY);
+        // commit the path to our offscreen
+        mCanvas.drawPath(mPath,  mPaint);
+        // kill this so we don't double draw
+        mPath.reset();
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         boolean retVal = scaleGestureDetector.onTouchEvent(event);
         retVal = gestureDetector.onTouchEvent(event) || retVal;
 
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            if (scrolling) {
-                scrolling = false;
-                onScrollEnd(event);
+        if (!pdfView.isScrollLock()) {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (scrolling) {
+                    scrolling = false;
+                    onScrollEnd(event);
+                }
+            }
+        } else if (pdfView.isScrollLock() && isLastPage) {
+            // relativos al canvas
+            float x = event.getX()-pdfView.getCurrentXOffset();
+            float y = event.getY();
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    pdfView.redraw();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    pdfView.redraw();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    pdfView.redraw();
+                    break;
             }
         }
         return retVal;
@@ -199,6 +296,34 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
     private void hideHandle() {
         if (pdfView.getScrollHandle() != null && pdfView.getScrollHandle().shown()) {
             pdfView.getScrollHandle().hideDelayed();
+        }
+    }
+
+    @Override
+    public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {
+        if (isLastPage) {
+            canvas.drawBitmap(mBitmap, SIGNATURE_HOR_MARGIN, pageHeight-SIGNATURE_HEIGHT-SIGNATURE_VER_MARGIN, mBitmapPaint);
+            canvas.drawPath(mPath, mPaint);
+        } else {
+            canvas.drawBitmap(hidden, SIGNATURE_HOR_MARGIN, pageHeight-SIGNATURE_HEIGHT-SIGNATURE_VER_MARGIN, mBitmapPaint);
+        }
+    }
+
+    @Override
+    public void onSize(int pageWidth, int pageHeight) {
+        mBitmap = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
+        hidden = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
+        mCanvas.translate(-SIGNATURE_HOR_MARGIN, -pageHeight+SIGNATURE_HEIGHT+SIGNATURE_VER_MARGIN);
+        mCanvas.drawRGB(120,120,120);
+    }
+
+    @Override
+    public void onPageChanged(int page, int pageCount) {
+        if (page==pageCount-1) {
+            this.isLastPage=true;
+        } else {
+            this.isLastPage = false;
         }
     }
 }

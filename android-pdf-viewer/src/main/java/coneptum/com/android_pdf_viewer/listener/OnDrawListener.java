@@ -35,4 +35,6 @@ public interface OnDrawListener {
      * @param displayedPage The current page index
      */
     void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage);
+
+    void onSize(int pageWidth, int pageHeight);
 }

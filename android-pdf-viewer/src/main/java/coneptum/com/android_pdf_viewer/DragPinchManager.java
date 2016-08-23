@@ -21,8 +21,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.Rect;
-import android.graphics.Region;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -42,10 +40,10 @@ import static coneptum.com.android_pdf_viewer.util.Constants.Pinch.MINIMUM_ZOOM;
 class DragPinchManager implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, ScaleGestureDetector.OnScaleGestureListener, View.OnTouchListener, OnDrawListener, OnPageChangeListener {
 
     // constants
-    private static final int SIGNATURE_WIDTH = 300;
-    private static final int SIGNATURE_HEIGHT = 200;
-    private static final int SIGNATURE_HOR_MARGIN = 20;
-    private static final int SIGNATURE_VER_MARGIN = 20;
+    private static final int SIGNATURE_WIDTH = 286;
+    private static final int SIGNATURE_HEIGHT = 68;
+    private static final int SIGNATURE_HOR_MARGIN = 21;
+    private static final int SIGNATURE_VER_MARGIN = 24;
     private static final float TOUCH_TOLERANCE = 4;
 
     private int pageH;

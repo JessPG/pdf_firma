@@ -321,27 +321,29 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         }
     }
 
+    // Se activa cuando se llama al método invalidate() de la vista.
     @Override
-    public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {
+    public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage, float zoom) {
         if (isLastPage) {
-            canvas.drawBitmap(mBitmap, SIGNATURE_HOR_MARGIN, pageHeight-SIGNATURE_HEIGHT-SIGNATURE_VER_MARGIN, mBitmapPaint);
+            Bitmap finalBitmap = Bitmap.createScaledBitmap(mBitmap, (int)(SIGNATURE_WIDTH*zoom), (int)(SIGNATURE_HEIGHT*zoom), false);
+            canvas.drawBitmap(finalBitmap, SIGNATURE_HOR_MARGIN*zoom, pageHeight-(SIGNATURE_HEIGHT+SIGNATURE_VER_MARGIN)*zoom, mBitmapPaint);
             canvas.drawPath(mPath, mPaint);
         } else {
             canvas.drawBitmap(hidden, SIGNATURE_HOR_MARGIN, pageHeight-SIGNATURE_HEIGHT-SIGNATURE_VER_MARGIN, mBitmapPaint);
         }
     }
 
+    // Se activa cuando se dibuja la vista.
     @Override
     public void onSize(int pageWidth, int pageHeight) {
         this.pageH = pageHeight;
         mBitmap = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
         hidden = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-
         mCanvas.translate(-SIGNATURE_HOR_MARGIN, -pageHeight+SIGNATURE_HEIGHT+SIGNATURE_VER_MARGIN);
-        mCanvas.drawRGB(120,120,120);
     }
 
+    // Se activa cuando cambiamos de página.
     @Override
     public void onPageChanged(int page, int pageCount) {
         if (page==pageCount-1) {

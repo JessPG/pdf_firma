@@ -572,7 +572,7 @@ public class PDFView extends View {
             onDrawListener.onLayerDrawn(canvas, //
                     toCurrentScale(optimalPageWidth), //
                     toCurrentScale(optimalPageHeight),
-                    currentPage);
+                    currentPage, getZoom());
 
             // retornamos el canvas a su posicion original
             canvas.translate(0, -toCurrentScale(currentFilteredPage * optimalPageHeight));

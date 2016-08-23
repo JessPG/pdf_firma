@@ -33,8 +33,9 @@ public interface OnDrawListener {
      * @param pageWidth     The width of the current page.
      * @param pageHeight    The height of the current page.
      * @param displayedPage The current page index
+     * @param zoom          The current zoom level.
      */
-    void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage);
+    void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage, float zoom);
 
     void onSize(int pageWidth, int pageHeight);
 }

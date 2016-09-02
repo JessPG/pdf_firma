@@ -1,36 +1,22 @@
 package coneptum.com.pdf_firma;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
 import com.shockwave.pdfium.PdfDocument;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 
+import coneptum.com.android_pdf_viewer.DrawContract;
 import coneptum.com.android_pdf_viewer.PDFView;
 import coneptum.com.android_pdf_viewer.listener.OnLoadCompleteListener;
-import coneptum.com.android_pdf_viewer.listener.OnPageChangeListener;
 
-public class MainActivity extends Activity implements OnLoadCompleteListener{
+public class MainActivity extends Activity implements OnLoadCompleteListener, DrawContract.View{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String SAMPLE_FILE = "sample.pdf";
@@ -38,6 +24,9 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
     private static final int LAST_PAGE = 1000;
 
     private PDFView pdfView;
+    private DrawContract.ActionListener actionListener;
+
+    private ToggleButton visto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +34,11 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
         setContentView(R.layout.activity_main);
         this.pdfView = (PDFView) findViewById(R.id.pdfView);
 
-        //String path = getIntent().getExtras().getString("path");
+        // comunicadores
+        this.actionListener = this.pdfView.getDragPinchManager();
+        this.pdfView.setDragPinchManagerView(this);
+
+        this.visto = (ToggleButton) findViewById(R.id.visto);
 
         ToggleButton button = (ToggleButton) findViewById(R.id.firmar);
         button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -55,9 +48,16 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
             }
         });
 
+        Button erase = (Button) findViewById(R.id.borrar);
+        erase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                visto.setChecked(false);
+                actionListener.erase();
+            }
+        });
 
-        // ToDO
-        String path = DOWNLOADS_FOLDER + SAMPLE_FILE;
+        String path = getIntent().getExtras().getString("path");
         Uri uri = Uri.parse(path);
         displayPdf(uri);
     }
@@ -104,5 +104,10 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
                 printBookmarksTree(b.getChildren(), sep + "-");
             }
         }
+    }
+
+    @Override
+    public void setVisto() {
+        this.visto.setChecked(true);
     }
 }

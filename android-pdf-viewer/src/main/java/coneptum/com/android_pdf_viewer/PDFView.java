@@ -265,6 +265,14 @@ public class PDFView extends View {
      */
     private boolean annotationRendering = false;
 
+    public DragPinchManager getDragPinchManager() {
+        return this.dragPinchManager;
+    }
+
+    public void setDragPinchManagerView(DrawContract.View view) {
+        this.dragPinchManager.setView(view);
+    }
+
     /**
      * Construct the initial view
      */

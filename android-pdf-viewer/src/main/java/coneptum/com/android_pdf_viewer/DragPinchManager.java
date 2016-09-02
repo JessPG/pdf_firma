@@ -37,7 +37,7 @@ import static coneptum.com.android_pdf_viewer.util.Constants.Pinch.MINIMUM_ZOOM;
  * This Manager takes care of moving the PDFView,
  * set its zoom track user actions.
  */
-class DragPinchManager implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, ScaleGestureDetector.OnScaleGestureListener, View.OnTouchListener, OnDrawListener, OnPageChangeListener {
+class DragPinchManager implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, ScaleGestureDetector.OnScaleGestureListener, View.OnTouchListener, OnDrawListener, OnPageChangeListener, DrawContract.ActionListener {
 
     // constants
     private static final int SIGNATURE_WIDTH = 286;
@@ -61,6 +61,8 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
     private boolean scrolling;
     private boolean isLastPage;
 
+    private DrawContract.View view;
+
     private Paint mPaint;
     private Bitmap mBitmap;
     private Bitmap hidden;
@@ -69,6 +71,9 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
     private Paint   mBitmapPaint;
     private float mX, mY;
 
+    public void setView (DrawContract.View view) {
+        this.view = view;
+    }
 
     public DragPinchManager(PDFView pdfView, AnimationManager animationManager) {
         this.pdfView = pdfView;
@@ -260,6 +265,7 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
 
     private void touch_move(float x, float y) {
         if (isInsideSignature((int)x, (int)y)) {
+            this.view.setVisto();
             float dx = Math.abs(x - mX);
             float dy = Math.abs(y - mY);
             if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
@@ -337,14 +343,18 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         }
     }
 
+    private void newCanvas() {
+        mBitmap = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
+        hidden = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
+        mCanvas.translate(-SIGNATURE_HOR_MARGIN, -this.pageH+SIGNATURE_HEIGHT+SIGNATURE_VER_MARGIN);
+    }
+
     // Se activa cuando se dibuja la vista.
     @Override
     public void onSize(int pageWidth, int pageHeight) {
         this.pageH = pageHeight;
-        mBitmap = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
-        hidden = Bitmap.createBitmap(SIGNATURE_WIDTH, SIGNATURE_HEIGHT, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-        mCanvas.translate(-SIGNATURE_HOR_MARGIN, -pageHeight+SIGNATURE_HEIGHT+SIGNATURE_VER_MARGIN);
+        newCanvas();
     }
 
     // Se activa cuando cambiamos de página.
@@ -355,5 +365,11 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         } else {
             this.isLastPage = false;
         }
+    }
+
+    @Override
+    public void erase() {
+        newCanvas();
+        pdfView.redraw();
     }
 }

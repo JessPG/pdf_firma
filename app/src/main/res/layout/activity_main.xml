@@ -18,19 +18,34 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/button_bar_height">
 
+
         <ToggleButton
-            android:id="@+id/b1"
-            android:text="Button"
-            android:layout_width="50dp"
-            android:layout_height="50dp" />
+            android:id="@+id/visto"
+            android:layout_marginRight="@dimen/button_margin"
+            android:clickable="false"
+            android:textOff=""
+            android:textOn=""
+            android:background="@drawable/btn_visto"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size" />
+
+        <ToggleButton
+            android:id="@+id/firmar"
+            android:layout_marginLeft="@dimen/button_margin"
+            android:layout_marginRight="@dimen/button_margin"
+            android:textOff=""
+            android:textOn=""
+            android:background="@drawable/btn_lapiz"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size" />
+
         <Button
-            android:text="Button"
-            android:layout_width="50dp"
-            android:layout_height="50dp" />
-        <Button
-            android:text="Button"
-            android:layout_width="50dp"
-            android:layout_height="50dp" />
+            android:id="@+id/borrar"
+            android:layout_marginLeft="@dimen/button_margin"
+            android:text=""
+            android:background="@drawable/btn_borrador"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size" />
     </LinearLayout>
 
     <!--<RelativeLayout-->

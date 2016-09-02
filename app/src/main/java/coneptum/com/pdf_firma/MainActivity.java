@@ -45,9 +45,9 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
         setContentView(R.layout.activity_main);
         this.pdfView = (PDFView) findViewById(R.id.pdfView);
 
-        String path = getIntent().getExtras().getString("path");
+        //String path = getIntent().getExtras().getString("path");
 
-        ToggleButton button = (ToggleButton) findViewById(R.id.b1);
+        ToggleButton button = (ToggleButton) findViewById(R.id.firmar);
         button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -55,6 +55,9 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
             }
         });
 
+
+        // ToDO
+        String path = DOWNLOADS_FOLDER + SAMPLE_FILE;
         Uri uri = Uri.parse(path);
         displayPdf(uri);
     }

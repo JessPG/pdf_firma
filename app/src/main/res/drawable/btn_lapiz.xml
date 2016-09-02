@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- When selected, use ambar -->
+    <item android:drawable="@drawable/lapiz_ambar"
+        android:state_checked="true" />
+    <!-- When not selected, use azul-->
+    <item android:drawable="@drawable/lapiz_azul"
+        android:state_checked="false"/>
+</selector>

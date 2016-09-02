@@ -46,7 +46,6 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
         this.pdfView = (PDFView) findViewById(R.id.pdfView);
 
         String path = getIntent().getExtras().getString("path");
-        Log.d("bundlepath", path);
 
         ToggleButton button = (ToggleButton) findViewById(R.id.b1);
         button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -80,14 +79,14 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
     @Override
     public void loadComplete(int nbPages) {
         PdfDocument.Meta meta = pdfView.getDocumentMeta();
-        Log.e(TAG, "title = " + meta.getTitle());
-        Log.e(TAG, "author = " + meta.getAuthor());
-        Log.e(TAG, "subject = " + meta.getSubject());
-        Log.e(TAG, "keywords = " + meta.getKeywords());
-        Log.e(TAG, "creator = " + meta.getCreator());
-        Log.e(TAG, "producer = " + meta.getProducer());
-        Log.e(TAG, "creationDate = " + meta.getCreationDate());
-        Log.e(TAG, "modDate = " + meta.getModDate());
+//        Log.e(TAG, "title = " + meta.getTitle());
+//        Log.e(TAG, "author = " + meta.getAuthor());
+//        Log.e(TAG, "subject = " + meta.getSubject());
+//        Log.e(TAG, "keywords = " + meta.getKeywords());
+//        Log.e(TAG, "creator = " + meta.getCreator());
+//        Log.e(TAG, "producer = " + meta.getProducer());
+//        Log.e(TAG, "creationDate = " + meta.getCreationDate());
+//        Log.e(TAG, "modDate = " + meta.getModDate());
 
         printBookmarksTree(pdfView.getTableOfContents(), "-");
 

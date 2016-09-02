@@ -1,5 +1,6 @@
 package coneptum.com.pdf_firma;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,7 +30,7 @@ import coneptum.com.android_pdf_viewer.PDFView;
 import coneptum.com.android_pdf_viewer.listener.OnLoadCompleteListener;
 import coneptum.com.android_pdf_viewer.listener.OnPageChangeListener;
 
-public class MainActivity extends AppCompatActivity implements OnLoadCompleteListener{
+public class MainActivity extends Activity implements OnLoadCompleteListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String SAMPLE_FILE = "sample.pdf";

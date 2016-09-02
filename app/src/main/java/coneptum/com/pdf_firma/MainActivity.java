@@ -37,8 +37,6 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
     private static final String DOWNLOADS_FOLDER = "/mnt/sdcard/download/";
     private static final int LAST_PAGE = 1000;
 
-    private String sampleBase64;
-
     private PDFView pdfView;
 
     @Override
@@ -46,6 +44,9 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.pdfView = (PDFView) findViewById(R.id.pdfView);
+
+        String path = getIntent().getExtras().getString("path");
+        Log.d("bundlepath", path);
 
         ToggleButton button = (ToggleButton) findViewById(R.id.b1);
         button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -55,9 +56,8 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
             }
         });
 
-        // TODO obtenir base 64 real
-        sampleBase64 = getString(R.string.demo);
-        getPdfFromBase64(sampleBase64);
+        Uri uri = Uri.parse(path);
+        displayPdf(uri);
     }
 
     /**
@@ -75,28 +75,6 @@ public class MainActivity extends Activity implements OnLoadCompleteListener{
 
         //pdfView.useBestQuality(true);
 
-    }
-
-    /**
-     * Genera el archivo pdf desde un base64
-     * @param base64
-     */
-    private void getPdfFromBase64 (String base64) {
-        final File file = new File(DOWNLOADS_FOLDER + SAMPLE_FILE);
-        byte[] pdfAsBytes = Base64.decode(base64, 0);
-        FileOutputStream os;
-        try {
-            os = new FileOutputStream(file, false);
-            os.write(pdfAsBytes);
-            os.flush();
-            os.close();
-            Uri uri = Uri.fromFile(file);
-            displayPdf(uri);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

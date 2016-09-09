@@ -1,6 +1,7 @@
 package coneptum.com.pdf_firma;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +17,7 @@ import coneptum.com.android_pdf_viewer.DrawContract;
 import coneptum.com.android_pdf_viewer.PDFView;
 import coneptum.com.android_pdf_viewer.listener.OnLoadCompleteListener;
 
-public class MainActivity extends Activity implements OnLoadCompleteListener, DrawContract.View{
+public class MainActivity extends Activity implements OnLoadCompleteListener, DrawContract.View, View.OnClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String SAMPLE_FILE = "sample.pdf";
@@ -26,19 +27,22 @@ public class MainActivity extends Activity implements OnLoadCompleteListener, Dr
     private PDFView pdfView;
     private DrawContract.ActionListener actionListener;
 
-    private ToggleButton visto;
+    private Button visto;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.pdfView = (PDFView) findViewById(R.id.pdfView);
+        this.intent = getIntent();
 
         // comunicadores
         this.actionListener = this.pdfView.getDragPinchManager();
         this.pdfView.setDragPinchManagerView(this);
 
-        this.visto = (ToggleButton) findViewById(R.id.visto);
+        this.visto = (Button) findViewById(R.id.visto);
+        this.visto.setOnClickListener(this);
 
         ToggleButton button = (ToggleButton) findViewById(R.id.firmar);
         button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -49,13 +53,7 @@ public class MainActivity extends Activity implements OnLoadCompleteListener, Dr
         });
 
         Button erase = (Button) findViewById(R.id.borrar);
-        erase.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                visto.setChecked(false);
-                actionListener.erase();
-            }
-        });
+        erase.setOnClickListener(this);
 
         String path = getIntent().getExtras().getString("path");
         Uri uri = Uri.parse(path);
@@ -108,6 +106,21 @@ public class MainActivity extends Activity implements OnLoadCompleteListener, Dr
 
     @Override
     public void setVisto() {
-        this.visto.setChecked(true);
+        this.visto.setEnabled(true);
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if (id == R.id.visto) {
+            Log.d("botovisto", "clicked");
+            intent.putExtra("missatge", "holaa");
+            setResult(RESULT_OK, intent);
+            finish();
+
+        } else if (id == R.id.borrar) {
+            visto.setEnabled(false);
+            actionListener.erase();
+        }
     }
 }

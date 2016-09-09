@@ -2,8 +2,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- When selected, use verde -->
     <item android:drawable="@drawable/bien_verde"
-        android:state_checked="true" />
+        android:state_enabled="true" />
     <!-- When not selected, use gris-->
     <item android:drawable="@drawable/bien_gris"
-        android:state_checked="false"/>
+        android:state_enabled="false"/>
 </selector>

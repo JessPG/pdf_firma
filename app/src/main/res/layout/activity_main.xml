@@ -19,12 +19,11 @@
         android:layout_height="@dimen/button_bar_height">
 
 
-        <ToggleButton
+        <Button
             android:id="@+id/visto"
             android:layout_marginRight="@dimen/button_margin"
-            android:clickable="false"
-            android:textOff=""
-            android:textOn=""
+            android:enabled="true"
+            android:text=""
             android:background="@drawable/btn_visto"
             android:layout_width="@dimen/button_size"
             android:layout_height="@dimen/button_size" />
